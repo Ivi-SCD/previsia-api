@@ -1,0 +1,29 @@
+# --- nunca no container ---
+.env
+.git/
+.gitignore
+
+# --- python runtime (reconstruído no build) ---
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+
+# --- notebooks (data science, não é runtime da API) ---
+notebooks/
+
+# --- dados brutos e intermediários ---
+# (os modelos .joblib SÃO copiados — veja o Dockerfile)
+reports/
+
+# --- ferramentas de dev ---
+scripts/validate.py
+
+# --- misc ---
+openapi.json
+.ipynb_checkpoints/
