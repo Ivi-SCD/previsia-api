@@ -7,32 +7,33 @@ RUN pip install uv --no-cache-dir
 
 COPY pyproject.toml uv.lock README.md ./
 
-# instala somente o grupo de produção (sem jupyterlab, pytest, etc.)
-RUN uv sync --no-dev --frozen
+# instala APENAS as dependências do [project] (sem notebook/dev)
+RUN uv sync --no-default-groups --no-dev --frozen
 
 # ── stage 2: runtime ───────────────────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
 
+# libgomp1 é exigida por xgboost/lightgbm em runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# copia o venv pronto do stage anterior
 COPY --from=deps /app/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# código-fonte da API + utilitários compartilhados
-COPY src/ ./src/
-
-# modelos treinados (artefatos joblib necessários para inferência)
+# código + artefatos necessários para inferência
+COPY src/    ./src/
 COPY models/ ./models/
+COPY sql/    ./sql/
 
-# schema SQL (útil para documentação / migrações on-deploy)
-COPY sql/ ./sql/
-
-# usuário sem root
 RUN useradd -m appuser && chown -R appuser /app
 USER appuser
 
 EXPOSE 8080
 
-# IBM Code Engine usa a porta via env PORT; fallback 8080
+# Code Engine injeta PORT; fallback 8080
 CMD ["sh", "-c", "uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1"]
