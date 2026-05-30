@@ -79,3 +79,14 @@ CREATE TABLE IF NOT EXISTS pipeline_runs (
     rows_out   INTEGER,
     error      TEXT
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id            BIGSERIAL PRIMARY KEY,
+    email         TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    full_name     TEXT,
+    role          TEXT NOT NULL DEFAULT 'analyst',
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
