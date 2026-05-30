@@ -1,4 +1,7 @@
+# --- secrets ---
 .env
+
+# --- python ---
 .venv/
 __pycache__/
 *.pyc
@@ -6,11 +9,30 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+
+# --- tooling ---
 .pytest_cache/
 .ruff_cache/
+.ipynb_checkpoints/
+
+# --- data (gerado pelos notebooks, não vai no repo) ---
+notebooks/data/bronze/*.parquet
+notebooks/data/silver/
+notebooks/data/gold/
+
+# --- raw data (arquivos originais, pesados) ---
+notebooks/data/bronze/*.csv
+notebooks/data/bronze/*.xlsx
+
+# --- modelos treinados (artefatos binários, ~25MB) ---
+# Para Docker a imagem é buildada localmente com os modelos presentes.
+# Para CI/CD, use `uv run python -m notebooks.02_ml.*` ou armazene no IBM COS.
 models/*.joblib
 models/*.pkl
-data/*.csv
-data/*.xlsx
+
+# --- relatórios gerados ---
+reports/
+
+# --- misc ---
+openapi.json
 great_expectations/uncommitted/
-.ipynb_checkpoints/
